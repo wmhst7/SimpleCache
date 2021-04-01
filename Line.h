@@ -3,12 +3,12 @@
 #include <iostream>
 #include <string>
 
-extern int tag_length;
+// extern int tag_length;
 
 class Line
 {
 public:
-    char data[7];
+    unsigned char data[7];
 
     Line()
     {
@@ -41,14 +41,14 @@ public:
     // The first tag_length bits are available
     uint64 getTag()
     {
-        return ((*(uint64 *)(data)) << 1);
+        return ((*(uint64 *)(data)) << 1) >> (8 + 1);
     }
 
     void setTag(uint64 addr)
     {
         bool v = isValid();
         bool d = isDirty();
-        (*(uint64 *)(data)) = (addr >> 1);
+        (*(uint64 *)(data)) = (addr << 9);
         setValid(v);
         setDirty(d);
     }
