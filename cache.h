@@ -1,10 +1,13 @@
 #pragma once
 
 #include "Replace_Random.h"
+#include "Replace_LRU.h"
+#include "Replace_PLRU.h"
+
 using namespace std;
 
 // Global Variable
-
+int tag_length;
 
 class Cache
 {
@@ -12,7 +15,7 @@ private:
     //
     int cache_size; // 128 * 1K Byte
     int block_size; // 8B, 32B, 64B(3, 5, 8)
-    int way_num;    // 0, 1, 4, 8 ?
+    int way_num;    // 1, 4, 8 ?
     int set_num;    // Cache set number: 2048
     ReplacePolicy replace_policy;
     bool write_through;
@@ -21,11 +24,11 @@ private:
     Line **data;
     ReplaceHandler *repHandler;
     //
-    uint64 timer;
+    // uint64 timer;
     int offset_len; // Cache Offset length: 3
     int index_len;  // Cache Index Length: 11
     uint64 index_mask;
-    int tag_length;
+    
 
 public:
     Cache(int cs, int bs, int ws, ReplacePolicy ra, bool wt, bool wa)
@@ -35,11 +38,14 @@ public:
         init();
     }
 
-    int lookUpSet(uint32 index, uint64 tag){
-        Line* l = data[index];
+    int lookUpSet(uint32 index, uint64 tag)
+    {
+        Line *l = data[index];
 
-        for (int i = 0; i < way_num; i++){
-            if(l[i].isValid() && (l[i].getTag() == tag)){
+        for (int i = 0; i < way_num; i++)
+        {
+            if (l[i].isValid() && (l[i].getTag() == tag))
+            {
                 return i;
             }
         }
@@ -47,41 +53,58 @@ public:
         return -1;
     }
 
-    int getVictimWayIndex(int set_index, uint64 addr, CmdType cmd){
-        Line* l = data[set_index];
-        for(int i = 0; i < way_num; i++){
-            if(!l[i].isValid()){
+    int getVictimWayIndex(int set_index, uint64 addr, CmdType cmd)
+    {
+        Line *l = data[set_index];
+        for (int i = 0; i < way_num; i++)
+        {
+            if (l[i].isValid() == false)
+            {
                 return i;
             }
         }
-        return -1;
+        return repHandler->getVictim(set_index, l, addr, cmd);
     }
 
     bool get(uint64 addr, CmdType cmd)
     {
         Line *pline = nullptr;
-        timer++;
-        repHandler->tick();
+        // timer++;
+        // repHandler->tick();
 
         bool hit = true;
+        // cout << hex << "\naddr:" << addr << endl;
+
         uint32 set_index = getIndex(addr);
+        // cout << hex <<"set_index:"<< set_index << endl;
         uint64 tag = getTag(addr);
+        // cout << hex << "tag:"<<tag << endl;
 
         int way_index = lookUpSet(set_index, tag);
-        if(way_index == -1){
+        // cout << "way_index:" << way_index << endl;
+        if (way_index == -1)
+        {
             hit = false;
             // 没找着，替换
-            if(write_allocate || (cmd == READ)){
+            if (cmd == READ || (write_allocate))
+            {
                 way_index = getVictimWayIndex(set_index, addr, cmd);
-                if(way_index != -1){
+                // cout << "way_index VICTIM:" << way_index << endl;
+                if (way_index != -1)
+                {
                     // 替换
                     pline = &data[set_index][way_index];
                     pline->setValid(true);
                     pline->setTag(tag);
+                    // cout << "After Replace tag:" <<hex<< pline->getTag() << endl;
                     repHandler->update(set_index, way_index, pline, cmd, hit);
                 }
             }
-        }else{
+        }
+        else
+        {
+            // 找着了
+            hit = true;
             pline = &data[set_index][way_index];
             repHandler->update(set_index, way_index, pline, cmd, hit);
         }
@@ -95,7 +118,6 @@ private:
         index_len = msb(set_num);
         tag_length = 64 - index_len - offset_len;
         index_mask = (1 << index_len) - 1;
-        timer = 0;
 
         data = new Line *[set_num];
 
@@ -107,6 +129,12 @@ private:
         {
         case RANDOM:
             repHandler = new Replace_Random(set_num, way_num, replace_policy);
+            break;
+        case LRU:
+            repHandler = new Replace_LRU(set_num, way_num, replace_policy);
+            break;
+        case PLRU:
+            repHandler = new Replace_PLRU(set_num, way_num, replace_policy);
             break;
         default:
             printf("Wrong Replacement Policy");

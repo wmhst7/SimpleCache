@@ -1,3 +1,3 @@
 all:
-	g++ main.cpp -O2 -o main && ./main
+	g++ main.cpp -O2 -std=c++14 -o main
 	

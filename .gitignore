@@ -32,3 +32,7 @@
 *.app
 
 test_trace/*
+*.zip
+*.dSYM
+.*
+out/*
