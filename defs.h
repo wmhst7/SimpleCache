@@ -26,32 +26,34 @@ enum CmdType
     WRITE,
 };
 
-inline int msb(uint32 n) {
+inline int msb(uint32 n)
+{
     int p = 0;
-
     if (n == 0)
         return -1;
-
-    if (n & 0xffff0000) {
+    if (n & 0xffff0000)
+    {
         p += 16;
         n >>= 16;
     }
-    if (n & 0x0000ff00) {
+    if (n & 0x0000ff00)
+    {
         p += 8;
         n >>= 8;
     }
-    if (n & 0x000000f0) {
+    if (n & 0x000000f0)
+    {
         p += 4;
         n >>= 4;
     }
-    if (n & 0x0000000c) {
+    if (n & 0x0000000c)
+    {
         p += 2;
         n >>= 2;
     }
-    if (n & 0x00000002) {
+    if (n & 0x00000002)
+    {
         p += 1;
     }
-
     return p;
 }
-

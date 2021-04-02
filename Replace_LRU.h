@@ -63,8 +63,6 @@ public:
     }
 };
 
-
-
 class Replace_LRU : public ReplaceHandler
 {
 public:
@@ -85,8 +83,10 @@ public:
 
     int getVictim(int set_index, const Line *linep, uint64 addr, CmdType cmd)
     {
-        for(int i = 0; i < way_num; i++){
-            if(q[set_index].get(i) == (way_num - 1)){
+        for (int i = 0; i < way_num; i++)
+        {
+            if (q[set_index].get(i) == (way_num - 1))
+            {
                 return i;
             }
         }
@@ -96,9 +96,11 @@ public:
     void update(int set_index, int way_index, const Line *linep, CmdType cmd, bool hit)
     {
         int pos = q[set_index].get(way_index);
-        for(int i = 0; i < way_num; i++){
+        for (int i = 0; i < way_num; i++)
+        {
             int res = q[set_index].get(i);
-            if(res < pos){
+            if (res < pos)
+            {
                 q[set_index].set(i, ++res);
             }
         }

@@ -53,25 +53,34 @@ public:
     {
         int l[depth];
         int pos = 0;
-        for(int i=0; i < depth; i++){
+        for (int i = 0; i < depth; i++)
+        {
             l[i] = (way_index & 1U);
             way_index >>= 1;
         }
-        for(int i = depth - 1; i >= 0; i--){
+        for (int i = depth - 1; i >= 0; i--)
+        {
             set(pos, l[i] == 0);
-            if(l[i] == 0) pos = 2 * pos + 1;
-            else pos = 2 * pos + 2;
+            if (l[i] == 0)
+                pos = 2 * pos + 1;
+            else
+                pos = 2 * pos + 2;
         }
     }
 
-    uint32 getVictim(){
+    uint32 getVictim()
+    {
         uint32 res = 0;
         int pos = 0;
-        for(int i = 0; i < depth; i++){
+        for (int i = 0; i < depth; i++)
+        {
             res <<= 1;
-            if(get(pos)){
+            if (get(pos))
+            {
                 pos = 2 * pos + 1;
-            }else{
+            }
+            else
+            {
                 pos = 2 * pos + 2;
                 res = res | 1U;
             }

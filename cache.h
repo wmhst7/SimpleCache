@@ -12,7 +12,6 @@ int tag_length;
 class Cache
 {
 private:
-    //
     int cache_size; // 128 * 1K Byte
     int block_size; // 8B, 32B, 64B(3, 5, 8)
     int way_num;    // 1, 4, 8 ?
@@ -20,15 +19,11 @@ private:
     ReplacePolicy replace_policy;
     bool write_through;
     bool write_allocate;
-    //
     Line **data;
     ReplaceHandler *repHandler;
-    //
-    // uint64 timer;
     int offset_len; // Cache Offset length: 3
     int index_len;  // Cache Index Length: 11
     uint64 index_mask;
-    
 
 public:
     Cache(int cs, int bs, int ws, ReplacePolicy ra, bool wt, bool wa)
@@ -69,8 +64,7 @@ public:
     bool get(uint64 addr, CmdType cmd)
     {
         Line *pline = nullptr;
-        // timer++;
-        // repHandler->tick();
+
 
         bool hit = true;
         // cout << hex << "\naddr:" << addr << endl;

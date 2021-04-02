@@ -16,12 +16,10 @@ wn = '8'
 wa = 'a'
 po = 'PLRU'
 
-for bs in block_size:
-    wn = str(int(128 * 1024 / bs))
-    bs = str(bs)
-    for filename in files:
-        cmd = './main {} {} {} {} '.format(bs, wn, wa, po) + path+filename+' '+outpath+filename.replace('trace', 'log')
-        # print(cmd)
-        os.system(cmd)
-        print("\tblock:", bs, "\tways: ", wn, '\t', wa, po, filename)
+for filename in files:
+    
+    cmd = './main {} {} {} {} '.format(bs, wn, wa, po) + path+filename+' '+outpath+filename.replace('trace', 'log')
+    # print(cmd)
+    os.system(cmd)
+    print(" ", bs, " ", wn, ' ', wa, po, filename)
     
